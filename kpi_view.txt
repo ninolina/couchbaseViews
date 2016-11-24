@@ -1,0 +1,294 @@
+_design/dev_/actuals
+
+***costs1:
+Map: function (doc) {
+    if(doc.TYPE == "FC_ACTUAL_FIXED_COSTS"){
+      emit([doc.PERIOD,doc.PRODUCT_MAIN_GROUP, doc.REGION],
+           {"Fixed Predet. Manufacturing Cost":doc.FIX_PRE_MAN_COST,
+                       "Shipping Cost":doc.SHIP_COST,
+                       "Selling Cost":doc.SELL_COST,
+                       "Difference actual/predet. Manufacturing cost":doc.DIFF_ACT_PRE_MAN_COST,
+                       "Cost of idle equipment":doc.IDLE_EQUIP_COST,
+                       "R&D Cost":doc.RD_COST,
+                       "Administration Cost BU":doc.ADMIN_COST_BU,
+                       "Administration Cost OD":doc.ADMIN_COST_OD,
+                       "Administration Cost Company":doc.ADMIN_COST_COMPANY,
+                       "Other Operating Cost BU":doc.OTHER_OP_COST_BU,
+                       
+                       "PERIOD":doc.PERIOD,"REGION":doc.REGION,
+                       "SUBREGION":doc.SUBREGION,"SBU":doc.SBU,
+                       "ENTRY_TYPE":doc.ENTRY_TYPE,
+                       "PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,
+                       "SALES_TYPE":doc.SALES_TYPE,
+                       "CURRENCY":doc.CURRENCY,
+                       "FC_TYPE":doc.FC_TYPE});
+        }
+    }
+  
+***costs2:
+Map: function (doc) {
+    if(doc.TYPE =="FC_ACTUAL_FIXED_COSTS"){
+      emit([doc.PERIOD, doc.PRODUCT_MAIN_GROUP, doc.REGION], {
+                       "Other Operating Cost OD":doc.OTHER_OP_COST_OD,
+                       "Other Operating Cost Company":doc.OTHER_OP_COST_COMPANY,
+                       "Special Items":doc.SPEC_ITEMS,
+                       "Provisions":doc.PROVISIONS,
+                       "Currency Gains":doc.CURRENCY_GAINS,
+                       "Valuation adjustment on inventories":doc.VAL_ADJUST_INVENTORIES,
+                       "Result from Equity-Method":doc.EQUITY_INCOME,
+                       "Other Fixed Cost (excl. Equity Result)":doc.OTHER_FIX_COST,
+                       "Depreciation":doc.DEPRECIATION,
+                       "Cost of Capital":doc.CAP_COST,
+                       
+                       "PERIOD":doc.PERIOD,"REGION":doc.REGION,
+                       "SUBREGION":doc.SUBREGION,"SBU":doc.SBU,
+                       "ENTRY_TYPE":doc.ENTRY_TYPE,
+                       "PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,
+                       "SALES_TYPE":doc.SALES_TYPE,
+                       "CURRENCY":doc.CURRENCY,
+                       "FC_TYPE":doc.FC_TYPE});
+        }
+    }
+
+***costs_calc:
+Map: function (doc) {
+    if(doc.TYPE =="FC_ACTUAL_FIXED_COSTS"){
+      emit([doc.PERIOD,doc.PRODUCT_MAIN_GROUP, doc.REGION],{
+        "Fixed Cost between CM1+CM2":
+                       doc.FIX_PRE_MAN_COST+doc.SHIP_COST+doc.SELL_COST+doc.DIFF_ACT_PRE_MAN_COST+doc.IDLE_EQUIP_COST,                      
+        "Fixed Cost below CM2":
+                       doc.RD_COST+doc.ADMIN_COST_BU+doc.ADMIN_COST_OD+doc.ADMIN_COST_COMPANY+doc.OTHER_OP_COST_BU+doc.OTHER_OP_COST_OD+doc.OTHER_OP_COST_COMPANY+doc.SPEC_ITEMS+doc.PROVISIONS+doc.CURRENCY_GAINS+doc.VAL_ADJUST_INVENTORIES+doc.EQUITY_INCOME+doc.OTHER_FIX_COST,
+        "Total Fixed Cost": doc.FIX_PRE_MAN_COST+doc.SHIP_COST+doc.SELL_COST+doc.DIFF_ACT_PRE_MAN_COST+doc.IDLE_EQUIP_COST+doc.RD_COST+doc.ADMIN_COST_BU+doc.ADMIN_COST_OD+doc.ADMIN_COST_COMPANY+doc.OTHER_OP_COST_BU+doc.OTHER_OP_COST_OD+doc.OTHER_OP_COST_COMPANY+doc.SPEC_ITEMS+doc.PROVISIONS+doc.CURRENCY_GAINS+doc.VAL_ADJUST_INVENTORIES+doc.EQUITY_INCOME+doc.OTHER_FIX_COST,
+                                      
+                       "PERIOD":doc.PERIOD,"REGION":doc.REGION,
+                       "SUBREGION":doc.SUBREGION,"SBU":doc.SBU,
+                       "ENTRY_TYPE":doc.ENTRY_TYPE,
+                       "PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,
+                       "SALES_TYPE":doc.SALES_TYPE,
+                       "CURRENCY":doc.CURRENCY,
+                       "FC_TYPE":doc.FC_TYPE});
+        }
+    }
+
+***sales:
+Map: function (doc) {
+    if(doc.TYPE =="FC_ACTUAL_SALES"){
+      emit([doc.PRODUCT_MAIN_GROUP, doc.REGION, doc.PERIOD],
+           {"Sales Volumes":doc.SALES_VOLUMES,
+            "Net Sales":doc.NET_SALES,
+            "CM1":doc.CM1,
+            
+            "PERIOD":doc.PERIOD,"REGION":doc.REGION,"SUBREGION":doc.SUBREGION,
+            "SBU":doc.SBU,"ENTRY_TYPE":doc.ENTRY_TYPE,
+            "PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,"SALES_TYPE":doc.SALES_TYPE,
+            "CURRENCY":doc.CURRENCY,"FC_TYPE":doc.FC_TYPE,"DATA_SOURCE":doc.DATA_SOURCE});
+        }
+    }
+
+***sales_calc:
+Map: function (doc) {
+    if(doc.TYPE =="FC_ACTUAL_SALES"){
+      if(doc.SALES_VOLUMES == 0){
+      	   emit([doc.PERIOD, doc.PRODUCT_MAIN_GROUP, doc.REGION],
+           {"Price": 0,
+            "Variable Cost": 0,
+            "CM1 in €/mt": 0,
+            "CM1 in % of Net Sales": 0,
+            "PERIOD":doc.PERIOD,"REGION":doc.REGION,"SUBREGION":doc.SUBREGION,
+            "SBU":doc.SBU,"ENTRY_TYPE":doc.ENTRY_TYPE,
+            "PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,"SALES_TYPE":doc.SALES_TYPE,
+            "CURRENCY":doc.CURRENCY,"FC_TYPE":doc.FC_TYPE,"DATA_SOURCE":doc.DATA_SOURCE});
+    	
+        }else{
+           emit([doc.PERIOD, doc.PRODUCT_MAIN_GROUP, doc.REGION],
+           {"Price": doc.NET_SALES/doc.SALES_VOLUMES * 1000,
+            "Variable Cost": (doc.NET_SALES - doc.CM1) *1000/doc.SALES_VOLUMES,
+            "CM1 in €/mt": doc.CM1/doc.SALES_VOLUMES * 1000,
+            "CM1 in % of Net Sales": doc.CM1/doc.NET_SALES * 1000,
+            "PERIOD":doc.PERIOD,"REGION":doc.REGION,"SUBREGION":doc.SUBREGION,
+            "SBU":doc.SBU,"ENTRY_TYPE":doc.ENTRY_TYPE,
+            "PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,"SALES_TYPE":doc.SALES_TYPE,
+            "CURRENCY":doc.CURRENCY,"FC_TYPE":doc.FC_TYPE,"DATA_SOURCE":doc.DATA_SOURCE})
+             }
+		}
+	}
+	
+_design/dev_/actuals
+
+***costs1:
+Map: function (doc) {
+    if(doc.TYPE =="FC_FORECAST_FIXED_COSTS"){
+      emit([doc.PLAN_PERIOD,doc.PRODUCT_MAIN_GROUP, doc.REGION],
+           {"Fixed Predet. Manufacturing Cost":doc.FIX_PRE_MAN_COST,
+                            "Shipping Cost":doc.SHIP_COST,
+                            "Selling Cost":doc.SELL_COST,
+                            "Difference actual/predet. Manufacturing cost":doc.DIFF_ACT_PRE_MAN_COST,
+                            "Cost of idle equipment":doc.IDLE_EQUIP_COST,
+                            "R&D Cost":doc.RD_COST,
+                            "Administration Cost BU":doc.ADMIN_COST_BU,
+                            "Administration Cost OD":doc.ADMIN_COST_OD,
+                            "Administration Cost Company":doc.ADMIN_COST_COMPANY,
+                            "Other Operating Cost BU":doc.OTHER_OP_COST_BU,
+                            
+                            "PLAN_PERIOD": doc.PLAN_PERIOD,
+                            "PERIOD":doc.PERIOD,"REGION":doc.REGION,
+                            "SUBREGION":doc.SUBREGION,"SBU":doc.SBU,
+                            "ENTRY_TYPE":doc.ENTRY_TYPE,
+                            "PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,
+                            "SALES_TYPE":doc.SALES_TYPE,"CURRENCY":doc.CURRENCY,
+                            "FC_TYPE":doc.FC_TYPE});
+    
+    
+		}
+	}
+
+***costs2:
+Map: function (doc) {
+    if(doc.TYPE == "FC_FORECAST_FIXED_COSTS"){
+    
+      emit([doc.PLAN_PERIOD,doc.PRODUCT_MAIN_GROUP, doc.REGION],
+            {
+                            "Other Operating Cost OD":doc.OTHER_OP_COST_OD,
+                      	    "Other Operating Cost Company":doc.OTHER_OP_COST_COMPANY,
+                            "Special Items":doc.SPEC_ITEMS,
+                            "Provisions":doc.PROVISIONS,
+                            "Currency Gains":doc.CURRENCY_GAINS,
+                            "Valuation adjustment on inventories":doc.VAL_ADJUST_INVENTORIES,
+                            "Result from Equity-Method":doc.EQUITY_INCOME,
+                            "Other Fixed Cost (excl. Equity Result)":doc.OTHER_FIX_COST,
+                            "Depreciation":doc.DEPRECIATION,
+                            "Cost of Capital":doc.CAP_COST,
+       			    "Top Down Adjustment Fixed Cost":doc.TOPDOWN_ADJUST_FIX_COSTS,
+                            
+                            "PLAN_PERIOD": doc.PLAN_PERIOD,
+                            "PERIOD":doc.PERIOD,"REGION":doc.REGION,
+                            "SUBREGION":doc.SUBREGION,"SBU":doc.SBU,
+                            "ENTRY_TYPE":doc.ENTRY_TYPE,
+                            "PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,
+                            "SALES_TYPE":doc.SALES_TYPE,"CURRENCY":doc.CURRENCY,
+                            "FC_TYPE":doc.FC_TYPE});
+    
+    }
+}
+
+***costs_calc: 
+Map: function (doc) {
+    if(doc.TYPE == "FC_FORECAST_FIXED_COSTS"){    
+      emit([doc.PLAN_PERIOD, doc.PRODUCT_MAIN_GROUP, doc.REGION],
+           {
+        "Fixed Cost between CM1+CM2":
+        doc.FIX_PRE_MAN_COST+doc.SHIP_COST+doc.SELL_COST+doc.DIFF_ACT_PRE_MAN_COST+doc.IDLE_EQUIP_COST,                   
+        
+        "Fixed Cost below CM2":
+        doc.RD_COST+doc.ADMIN_COST_BU+doc.ADMIN_COST_OD+doc.ADMIN_COST_COMPANY+doc.OTHER_OP_COST_BU+doc.OTHER_OP_COST_OD+doc.OTHER_OP_COST_COMPANY+doc.SPEC_ITEMS+doc.PROVISIONS+doc.CURRENCY_GAINS+doc.VAL_ADJUST_INVENTORIES+doc.EQUITY_INCOME+doc.OTHER_FIX_COST,
+        
+        "Total Fixed Cost": 
+        doc.FIX_PRE_MAN_COST+doc.SHIP_COST+doc.SELL_COST+doc.DIFF_ACT_PRE_MAN_COST+doc.IDLE_EQUIP_COST+doc.RD_COST+doc.ADMIN_COST_BU+doc.ADMIN_COST_OD+doc.ADMIN_COST_COMPANY+doc.OTHER_OP_COST_BU+doc.OTHER_OP_COST_OD+doc.OTHER_OP_COST_COMPANY+doc.SPEC_ITEMS+doc.PROVISIONS+doc.CURRENCY_GAINS+doc.VAL_ADJUST_INVENTORIES+doc.EQUITY_INCOME+doc.OTHER_FIX_COST,
+                                                                 
+                            "PLAN_PERIOD": doc.PLAN_PERIOD,
+                            "PERIOD":doc.PERIOD,"REGION":doc.REGION,
+                            "SUBREGION":doc.SUBREGION,"SBU":doc.SBU,
+                            "ENTRY_TYPE":doc.ENTRY_TYPE,
+                            "PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,
+                            "SALES_TYPE":doc.SALES_TYPE,"CURRENCY":doc.CURRENCY,
+                            "FC_TYPE":doc.FC_TYPE});
+    
+    }
+  }
+  
+***sales:
+Map: function (doc) {
+    if(doc.TYPE == "FC_FORECAST_SALES"){
+      emit([doc.PLAN_PERIOD,doc.PRODUCT_MAIN_GROUP, doc.REGION],
+           {"Sales Volumes":doc.SALES_VOLUMES,
+            "Net Sales":doc.NET_SALES,
+            "CM1":doc.CM1,
+            
+            "PLAN_PERIOD":doc.PLAN_PERIOD,"PERIOD":doc.PERIOD,
+            "REGION":doc.REGION,"SUBREGION":doc.SUBREGION,"SBU":doc.SBU,
+            "ENTRY_TYPE":doc.ENTRY_TYPE,"PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,
+            "SALES_TYPE":doc.SALES_TYPE,"CURRENCY":doc.CURRENCY,"FC_TYPE":doc.FC_TYPE});
+    
+  }
+}
+
+***sales_calc:
+Map: function (doc) {
+    if(doc.TYPE =="FC_FORECAST_SALES"){ 
+      
+	if(doc.SALES_VOLUMES == 0){
+      	   emit([doc.PLAN_PERIOD, doc.PRODUCT_MAIN_GROUP, doc.REGION],
+           {"Price": 0,
+            "Variable Cost": 0,
+            "CM1 in €/mt": 0,
+            "CM1 in % of Net Sales": 0,
+            "PLAN_PERIOD":doc.PLAN_PERIOD,"PERIOD":doc.PERIOD,
+            "REGION":doc.REGION,"SUBREGION":doc.SUBREGION,"SBU":doc.SBU,
+            "ENTRY_TYPE":doc.ENTRY_TYPE,"PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,
+            "SALES_TYPE":doc.SALES_TYPE,"CURRENCY":doc.CURRENCY,"FC_TYPE":doc.FC_TYPE});
+    	
+        }else{
+           emit([doc.PLAN_PERIOD, doc.PRODUCT_MAIN_GROUP, doc.REGION],
+           {"Price": doc.NET_SALES/doc.SALES_VOLUMES * 1000,
+            "Variable Cost": (doc.NET_SALES - doc.CM1) *1000/doc.SALES_VOLUMES,
+            "CM1 in €/mt": doc.CM1/doc.SALES_VOLUMES * 1000,
+            "CM1 in % of Net Sales": doc.CM1/doc.NET_SALES * 1000,
+            "PLAN_PERIOD":doc.PLAN_PERIOD,"PERIOD":doc.PERIOD,
+            "REGION":doc.REGION,"SUBREGION":doc.SUBREGION,"SBU":doc.SBU,
+            "ENTRY_TYPE":doc.ENTRY_TYPE,"PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,
+            "SALES_TYPE":doc.SALES_TYPE,"CURRENCY":doc.CURRENCY,"FC_TYPE":doc.FC_TYPE});
+             }
+		}
+    }
+
+_design/dev_/structure
+
+***pmg:
+Map: 
+function (doc) {
+    if(doc.TYPE == "FC_MD_ORG_STRUCTURE"){
+      emit(doc.TYPE, doc.PRODUCT_MAIN_GROUP);
+    }
+}
+
+***regions:
+Map: 	function (doc) {
+    if(doc.TYPE == "FC_MD_REGIONS"){
+      emit(doc.TYPE, doc.REGION);
+    }
+}
+
+***regionsSales:
+Map: function (doc) {
+    if(doc.TYPE == "FC_MD_REGIONS"){
+      emit(doc.TYPE, doc.REGION);
+    }
+}
+
+Reduce: function (keys,arr,rereduce) {
+  function contains(value, array) {
+    if (array.length > 0) {
+      for (element in array) {
+        if(array[element] == value) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    } else {
+      return false;
+    }
+  }
+  
+  var out = [];
+  var i = 0;
+
+  for (v in arr) {
+    if (!(contains(arr[v], out))) {
+      out[i] = arr[v];
+      i++;
+    }
+  }
+
+  return out;	 
+}
