@@ -113,7 +113,7 @@ Map: function (doc) {
 		}
 	}
 	
-_design/dev_/actuals
+_design/dev_/forecast
 
 ***costs1:
 Map: function (doc) {
