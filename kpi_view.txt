@@ -199,7 +199,7 @@ Map: function (doc) {
 ***sales:
 Map: function (doc) {
     if(doc.TYPE == "FC_FORECAST_SALES"){
-      emit([doc.PLAN_PERIOD,doc.PRODUCT_MAIN_GROUP, doc.REGION],
+      emit([doc.PRODUCT_MAIN_GROUP, doc.REGION, doc.PERIOD, doc.PLAN_PERIOD],
            {"Sales Volumes":doc.SALES_VOLUMES,
             "Net Sales":doc.NET_SALES,
             "CM1":doc.CM1,
@@ -217,7 +217,7 @@ Map: function (doc) {
     if(doc.TYPE =="FC_FORECAST_SALES"){ 
       
 	if(doc.SALES_VOLUMES == 0){
-      	   emit([doc.PLAN_PERIOD, doc.PRODUCT_MAIN_GROUP, doc.REGION],
+      	   emit([doc.PRODUCT_MAIN_GROUP, doc.REGION, doc.PERIOD, doc.PLAN_PERIOD],
            {"Price": 0,
             "Variable Cost": 0,
             "CM1 in €/mt": 0,
@@ -228,7 +228,7 @@ Map: function (doc) {
             "SALES_TYPE":doc.SALES_TYPE,"CURRENCY":doc.CURRENCY,"FC_TYPE":doc.FC_TYPE});
     	
         }else{
-           emit([doc.PLAN_PERIOD, doc.PRODUCT_MAIN_GROUP, doc.REGION],
+           emit([doc.PRODUCT_MAIN_GROUP, doc.REGION, doc.PERIOD, doc.PLAN_PERIOD],
            {"Price": doc.NET_SALES/doc.SALES_VOLUMES * 1000,
             "Variable Cost": (doc.NET_SALES - doc.CM1) *1000/doc.SALES_VOLUMES,
             "CM1 in €/mt": doc.CM1/doc.SALES_VOLUMES * 1000,
@@ -238,8 +238,8 @@ Map: function (doc) {
             "ENTRY_TYPE":doc.ENTRY_TYPE,"PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,
             "SALES_TYPE":doc.SALES_TYPE,"CURRENCY":doc.CURRENCY,"FC_TYPE":doc.FC_TYPE});
              }
-		}
-    }
+ 	}
+     }
 
 _design/dev_/structure
 
