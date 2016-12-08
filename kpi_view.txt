@@ -1,3 +1,21 @@
+_design/dev_/datamanipulation
+
+***forecastfixcosts
+
+Map: function (doc, meta) {
+  if(doc.TYPE == "FC_FORECAST_FIXED_COSTS"){
+    emit([doc.SUBREGION, doc.SBU, doc.PERIOD], [meta.id,doc]);
+  }
+}
+
+***forecastsales
+
+Map: function (doc) {
+  if(doc.TYPE == "FC_FORECAST_SALES"){
+  emit([doc.PRODUCT_MAIN_GROUP, doc.REGION, doc.PERIOD], doc);
+  }
+}
+
 _design/dev_/actuals
 
 ***costs1:
