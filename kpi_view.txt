@@ -315,10 +315,10 @@ function (doc) {
     }
 }
 
-***regions:
+***Subregions:
 Map: 	function (doc) {
     if(doc.TYPE == "FC_MD_REGIONS"){
-      emit(doc.TYPE, doc.REGION);
+      emit(doc.TYPE, doc.SUBREGION);
     }
 }
 
@@ -395,6 +395,14 @@ Reduce: function (keys,arr,rereduce) {
 Map: function (doc) {
     if(doc.TYPE == "FC_MD_REGIONS"){
       emit(doc.TYPE, doc.SUBREGION);
+    }
+}
+
+***exchangeRate
+
+Map: function (doc) {
+    if(doc.TYPE =="FC_EXCHANGE_RATE"){
+      emit([doc.PERIOD, doc.TO_CURRENCY],doc.RATE);
     }
 }
 
