@@ -18,6 +18,31 @@ Map: function (doc) {
 
 _design/dev_/actuals
 
+***cm1_percent
+Map: function (doc) {
+    if(doc.TYPE =="FC_ACTUAL_SALES"){
+      if(doc.NET_SALES == 0){
+      	   emit([doc.PERIOD, doc.PRODUCT_MAIN_GROUP, doc.REGION, doc.SALES_TYPE],
+           {
+            "CM1 in % of Net Sales": 0,
+            "PERIOD":doc.PERIOD,"REGION":doc.REGION,"SUBREGION":doc.SUBREGION,
+            "SBU":doc.SBU,"ENTRY_TYPE":doc.ENTRY_TYPE,
+            "PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,"SALES_TYPE":doc.SALES_TYPE,
+            "CURRENCY":doc.CURRENCY,"FC_TYPE":doc.FC_TYPE,"DATA_SOURCE":doc.DATA_SOURCE});
+    	
+        }else{
+           emit([doc.PERIOD, doc.PRODUCT_MAIN_GROUP, doc.REGION, doc.SALES_TYPE],
+           {
+            "CM1 in % of Net Sales": doc.CM1/doc.NET_SALES * 100,
+            "PERIOD":doc.PERIOD,"REGION":doc.REGION,"SUBREGION":doc.SUBREGION,
+            "SBU":doc.SBU,"ENTRY_TYPE":doc.ENTRY_TYPE,
+            "PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,"SALES_TYPE":doc.SALES_TYPE,
+            "CURRENCY":doc.CURRENCY,"FC_TYPE":doc.FC_TYPE,"DATA_SOURCE":doc.DATA_SOURCE})
+             }
+		}
+	}
+
+
 ***costs1:
 Map: function (doc) {
     if(doc.TYPE == "FC_ACTUAL_FIXED_COSTS"){
@@ -107,31 +132,54 @@ Map: function (doc) {
 Map: function (doc) {
     if(doc.TYPE =="FC_ACTUAL_SALES"){
       if(doc.SALES_VOLUMES == 0){
-      	   emit([doc.PERIOD, doc.PRODUCT_MAIN_GROUP, doc.REGION],
+      	   emit([doc.PERIOD, doc.PRODUCT_MAIN_GROUP, doc.REGION, doc.SALES_TYPE],
            {"Price": 0,
             "Variable Cost": 0,
             "CM1 in €/mt": 0,
-            "CM1 in % of Net Sales": 0,
             "PERIOD":doc.PERIOD,"REGION":doc.REGION,"SUBREGION":doc.SUBREGION,
             "SBU":doc.SBU,"ENTRY_TYPE":doc.ENTRY_TYPE,
             "PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,"SALES_TYPE":doc.SALES_TYPE,
             "CURRENCY":doc.CURRENCY,"FC_TYPE":doc.FC_TYPE,"DATA_SOURCE":doc.DATA_SOURCE});
     	
         }else{
-           emit([doc.PERIOD, doc.PRODUCT_MAIN_GROUP, doc.REGION],
+           emit([doc.PERIOD, doc.PRODUCT_MAIN_GROUP, doc.REGION, doc.SALES_TYPE],
            {"Price": doc.NET_SALES/doc.SALES_VOLUMES * 1000,
             "Variable Cost": (doc.NET_SALES - doc.CM1) *1000/doc.SALES_VOLUMES,
             "CM1 in €/mt": doc.CM1/doc.SALES_VOLUMES * 1000,
-            "CM1 in % of Net Sales": doc.CM1/doc.NET_SALES * 1000,
             "PERIOD":doc.PERIOD,"REGION":doc.REGION,"SUBREGION":doc.SUBREGION,
             "SBU":doc.SBU,"ENTRY_TYPE":doc.ENTRY_TYPE,
             "PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,"SALES_TYPE":doc.SALES_TYPE,
             "CURRENCY":doc.CURRENCY,"FC_TYPE":doc.FC_TYPE,"DATA_SOURCE":doc.DATA_SOURCE})
              }
-		}
-	}
+    }
+  }
 	
 _design/dev_/forecast
+
+***cm1_percent:
+Map: function (doc) {
+    if(doc.TYPE =="FC_FORECAST_SALES"){ 
+      
+	if(doc.NET_SALES == 0){
+      	   emit([doc.PRODUCT_MAIN_GROUP, doc.REGION, doc.PERIOD, doc.PLAN_PERIOD, doc.SALES_TYPE],
+           {
+             "CM1 in % of Net Sales": 0,
+            "PLAN_PERIOD":doc.PLAN_PERIOD,"PERIOD":doc.PERIOD,
+            "REGION":doc.REGION,"SUBREGION":doc.SUBREGION,"SBU":doc.SBU,
+            "ENTRY_TYPE":doc.ENTRY_TYPE,"PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,
+            "SALES_TYPE":doc.SALES_TYPE,"CURRENCY":doc.CURRENCY,"FC_TYPE":doc.FC_TYPE});
+    	
+        }else{
+           emit([doc.PRODUCT_MAIN_GROUP, doc.REGION, doc.PERIOD, doc.PLAN_PERIOD, doc.SALES_TYPE],
+           {
+             "CM1 in % of Net Sales": doc.CM1/doc.NET_SALES * 100,
+            "PLAN_PERIOD":doc.PLAN_PERIOD,"PERIOD":doc.PERIOD,
+            "REGION":doc.REGION,"SUBREGION":doc.SUBREGION,"SBU":doc.SBU,
+            "ENTRY_TYPE":doc.ENTRY_TYPE,"PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,
+            "SALES_TYPE":doc.SALES_TYPE,"CURRENCY":doc.CURRENCY,"FC_TYPE":doc.FC_TYPE});
+             }
+ 	}
+     }
 
 ***costs1:
 Map: function (doc) {
@@ -235,22 +283,20 @@ Map: function (doc) {
     if(doc.TYPE =="FC_FORECAST_SALES"){ 
       
 	if(doc.SALES_VOLUMES == 0){
-      	   emit([doc.PRODUCT_MAIN_GROUP, doc.REGION, doc.PERIOD, doc.PLAN_PERIOD],
+      	   emit([doc.PRODUCT_MAIN_GROUP, doc.REGION, doc.PERIOD, doc.PLAN_PERIOD, doc.SALES_TYPE],
            {"Price": 0,
             "Variable Cost": 0,
             "CM1 in €/mt": 0,
-            "CM1 in % of Net Sales": 0,
             "PLAN_PERIOD":doc.PLAN_PERIOD,"PERIOD":doc.PERIOD,
             "REGION":doc.REGION,"SUBREGION":doc.SUBREGION,"SBU":doc.SBU,
             "ENTRY_TYPE":doc.ENTRY_TYPE,"PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,
             "SALES_TYPE":doc.SALES_TYPE,"CURRENCY":doc.CURRENCY,"FC_TYPE":doc.FC_TYPE});
     	
         }else{
-           emit([doc.PRODUCT_MAIN_GROUP, doc.REGION, doc.PERIOD, doc.PLAN_PERIOD],
+           emit([doc.PRODUCT_MAIN_GROUP, doc.REGION, doc.PERIOD, doc.PLAN_PERIOD, doc.SALES_TYPE],
            {"Price": doc.NET_SALES/doc.SALES_VOLUMES * 1000,
             "Variable Cost": (doc.NET_SALES - doc.CM1) *1000/doc.SALES_VOLUMES,
             "CM1 in €/mt": doc.CM1/doc.SALES_VOLUMES * 1000,
-            "CM1 in % of Net Sales": doc.CM1/doc.NET_SALES * 1000,
             "PLAN_PERIOD":doc.PLAN_PERIOD,"PERIOD":doc.PERIOD,
             "REGION":doc.REGION,"SUBREGION":doc.SUBREGION,"SBU":doc.SBU,
             "ENTRY_TYPE":doc.ENTRY_TYPE,"PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,
