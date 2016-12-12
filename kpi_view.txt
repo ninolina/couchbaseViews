@@ -4,7 +4,7 @@ _design/dev_/datamanipulation
 
 Map: function (doc, meta) {
   if(doc.TYPE == "FC_FORECAST_FIXED_COSTS"){
-    emit([doc.SUBREGION, doc.SBU, doc.PERIOD], [meta.id,doc]);
+    emit([doc.SUBREGION, doc.SBU, doc.PERIOD], [meta.id, doc]);
   }
 }
 
@@ -12,7 +12,7 @@ Map: function (doc, meta) {
 
 Map: function (doc) {
   if(doc.TYPE == "FC_FORECAST_SALES"){
-  emit([doc.PRODUCT_MAIN_GROUP, doc.REGION, doc.PERIOD], doc);
+  emit([doc.PRODUCT_MAIN_GROUP, doc.REGION, doc.PERIOD], [meta.id, doc]);
   }
 }
 
