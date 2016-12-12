@@ -224,7 +224,6 @@ Map: function (doc) {
                             "Other Fixed Cost (excl. Equity Result)":doc.OTHER_FIX_COST,
                             "Depreciation":doc.DEPRECIATION,
                             "Cost of Capital":doc.CAP_COST,
-       			    "Top Down Adjustment Fixed Cost":doc.TOPDOWN_ADJUST_FIX_COSTS,
                             
                             "PLAN_PERIOD": doc.PLAN_PERIOD,
                             "PERIOD":doc.PERIOD,"REGION":doc.REGION,
