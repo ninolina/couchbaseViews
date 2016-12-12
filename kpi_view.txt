@@ -406,3 +406,47 @@ Map: function (doc) {
     }
 }
 
+_design/dev_/topdown
+
+***sales
+Map: function (doc) {
+    if(doc.TYPE == "FC_FORECAST_SALES"){
+      emit([doc.PRODUCT_MAIN_GROUP, doc.REGION, doc.PERIOD, doc.PLAN_PERIOD, doc.SALES_TYPE],
+           {"Sales Volumes":doc.TOPDOWN_ADJUST_SALES_VOLUMES,
+            "Net Sales":doc.TOPDOWN_ADJUST_NET_SALES,
+            "CM1":doc.TOPDOWN_ADJUST_CM1,
+            
+            "PLAN_PERIOD":doc.PLAN_PERIOD,"PERIOD":doc.PERIOD,
+            "REGION":doc.REGION,"SUBREGION":doc.SUBREGION,"SBU":doc.SBU,
+            "ENTRY_TYPE":doc.ENTRY_TYPE,"PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,
+            "SALES_TYPE":doc.SALES_TYPE,"CURRENCY":doc.CURRENCY,"FC_TYPE":doc.FC_TYPE});
+    
+  }
+}
+
+***sales_calc
+Map: function (doc) {
+    if(doc.TYPE =="FC_FORECAST_SALES"){ 
+      
+	if(doc.TOPDOWN_ADJUST_SALES_VOLUMES == 0){
+      	   emit([doc.PRODUCT_MAIN_GROUP, doc.REGION, doc.PERIOD, doc.PLAN_PERIOD, doc.SALES_TYPE],
+           {"Price": 0,
+            "Variable Cost": 0,
+            "CM1 in €/mt": 0,
+            "PLAN_PERIOD":doc.PLAN_PERIOD,"PERIOD":doc.PERIOD,
+            "REGION":doc.REGION,"SUBREGION":doc.SUBREGION,"SBU":doc.SBU,
+            "ENTRY_TYPE":doc.ENTRY_TYPE,"PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,
+            "SALES_TYPE":doc.SALES_TYPE,"CURRENCY":doc.CURRENCY,"FC_TYPE":doc.FC_TYPE});
+    	
+        }else{
+           emit([doc.PRODUCT_MAIN_GROUP, doc.REGION, doc.PERIOD, doc.PLAN_PERIOD, doc.SALES_TYPE],
+           {"Price": doc.TOPDOWN_ADJUST_NET_SALES/doc.TOPDOWN_ADJUST_SALES_VOLUMES * 1000,
+            "Variable Cost": (doc.TOPDOWN_ADJUST_NET_SALES - doc.TOPDOWN_ADJUST_CM1) *1000/doc.TOPDOWN_ADJUST_SALES_VOLUMES,
+            "CM1 in €/mt": doc.TOPDOWN_ADJUST_CM1/doc.TOPDOWN_ADJUST_SALES_VOLUMES * 1000,
+            "PLAN_PERIOD":doc.PLAN_PERIOD,"PERIOD":doc.PERIOD,
+            "REGION":doc.REGION,"SUBREGION":doc.SUBREGION,"SBU":doc.SBU,
+            "ENTRY_TYPE":doc.ENTRY_TYPE,"PRODUCT_MAIN_GROUP":doc.PRODUCT_MAIN_GROUP,
+            "SALES_TYPE":doc.SALES_TYPE,"CURRENCY":doc.CURRENCY,"FC_TYPE":doc.FC_TYPE});
+             }
+ 	}
+     }
