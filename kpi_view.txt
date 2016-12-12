@@ -315,13 +315,6 @@ function (doc) {
     }
 }
 
-***Subregions:
-Map: 	function (doc) {
-    if(doc.TYPE == "FC_MD_REGIONS"){
-      emit(doc.TYPE, doc.SUBREGION);
-    }
-}
-
 ***regionsSales:
 Map: function (doc) {
     if(doc.TYPE == "FC_MD_REGIONS"){
